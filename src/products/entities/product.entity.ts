@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { generateSlug } from '../../helpers/index';
 
 @Entity({ name: 'products' })
@@ -42,5 +42,10 @@ export class Product {
         const textToSlug = this.slug || this.title;
 
         this.slug = generateSlug(textToSlug);
+    }
+
+    @BeforeUpdate()
+    updateSlug() {
+        this.slug = generateSlug(this.slug);
     }
 }

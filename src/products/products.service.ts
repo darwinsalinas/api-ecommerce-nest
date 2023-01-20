@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isValidUUID } from 'src/helpers';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class ProductsService {
@@ -27,20 +29,64 @@ export class ProductsService {
     }
   }
 
-  findAll() {
-    return `This action returns all products`;
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 25, offset = 0 } = paginationDto;
+    return this.productRepository.find({
+      take: limit,
+      skip: offset
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(term: string) {
+    let product: Product;
+    const isUUID = await isValidUUID(term);
+
+    if (isUUID) {
+      product = await this.productRepository.findOne({
+        where: { id: term }
+      });
+    } else {
+      const query = this.productRepository.createQueryBuilder();
+
+      product = await query
+        .where('LOWER(slug) = LOWER(:slug)', { slug: term })
+        .orWhere('LOWER(title) = LOWER(:title)', { title: term })
+        .getOne();
+    }
+
+    if (!product) {
+      throw new NotFoundException(`Product with slug or id ${term} not found`);
+    }
+
+    return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+
+    const product = await this.productRepository.preload({
+      id: id,
+      ...updateProductDto
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with id ${id} not found`);
+    }
+
+    try {
+      return await this.productRepository.save(product);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    const data = await this.productRepository.delete(id);
+
+    if (data.affected === 0) {
+      throw new NotFoundException(`Product with id ${id} not found`);
+    }
+
+    return;
   }
 
   handleError(error: any) {
