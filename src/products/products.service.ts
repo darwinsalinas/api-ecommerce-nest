@@ -127,6 +127,10 @@ export class ProductsService {
     return;
   }
 
+  deleteAllProducts() {
+    return this.productRepository.delete({});
+  }
+
   handleError(error: any) {
     if (error.code === '23505') {
       throw new BadRequestException(error.detail);

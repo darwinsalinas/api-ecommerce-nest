@@ -13,3 +13,5 @@
 4. Run database container: `docker-compose up -d`
 
 5. Run app `yarn start:dev`
+
+6. Seed Database `http://{{host}}:{{port}}/seed`
