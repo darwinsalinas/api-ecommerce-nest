@@ -37,6 +37,12 @@ export class Product {
     @Column('text')
     gender: string;
 
+    @Column('text', {
+        array: true,
+        default: []
+    })
+    tags: string[];
+
     @BeforeInsert()
     createSlug() {
         const textToSlug = this.slug || this.title;
