@@ -23,6 +23,12 @@ export class User {
     @Column({ type: 'text', array: true, default: [] })
     roles: string[];
 
+    @OneToMany(
+        () => Product,
+        product => product.user
+    )
+    products: Product[];
+
     @BeforeInsert()
     normalizeInsertEmail() {
         this.email = this.email.toLowerCase();
