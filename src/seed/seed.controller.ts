@@ -11,7 +11,7 @@ export class SeedController {
 
 
   @Get()
-  @Auth(ValidRoles.superAdmin)
+  // @Auth(ValidRoles.superAdmin)
   executeSeed() {
     return this.seedService.executeSeed();
 

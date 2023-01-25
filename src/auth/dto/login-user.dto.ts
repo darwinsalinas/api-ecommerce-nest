@@ -1,4 +1,13 @@
-import { PartialType, PickType } from '@nestjs/swagger';
-import { RegisterUserDto } from './register-user.dto';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsString } from 'class-validator';
 
-export class LoginUserDto extends PickType(RegisterUserDto, ['email', 'password']) { }
+export class LoginUserDto {
+
+    @IsEmail()
+    @ApiProperty({ type: String, description: 'Email' })
+    email: string;
+
+    @IsString()
+    @ApiProperty({ type: String, description: 'Password' })
+    password: string;
+}

@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsIn, IsInt, IsNumber, IsOptional, IsString, Min, MinLength } from "class-validator";
+import { User } from "src/auth/entities/user.entity";
 
 export class CreateProductDto {
 
